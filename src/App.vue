@@ -29,6 +29,7 @@
     <script id="surffragment" type="x-shader/x-fragment">
       in vec2 texcoord;
       uniform sampler2D tex;
+      uniform float time;
       void main()
       {
         gl_FragColor = vec4(texture(tex,texcoord).xyz,0.5);
@@ -40,7 +41,7 @@
       void main()
       {
         vec4 worldpos=modelMatrix * vec4( position, 1.0 );
-        worldpos=vec4(worldpos.x,worldpos.y+texture(height,uv).x*4.0f,worldpos.zw);
+        worldpos=vec4(worldpos.x,worldpos.y+texture(height,uv).x*10.0f,worldpos.zw);
         gl_Position = projectionMatrix * viewMatrix * worldpos;
         texcoord=uv;
       }
@@ -76,7 +77,8 @@ export default {
       renderer: null,
       mesh: null,
       loader:null,
-      labelRenderer:null
+      labelRenderer:null,
+      surfmat:null
     }
   },
   methods: {
@@ -146,14 +148,14 @@ export default {
       //buoyDiv.textContent = 'buoy';
       buoyDiv.style.marginTop = '-1em';
       let buoyLabel = new CSS2DObject( buoyDiv );
-      buoyLabel.position.set( 0, 2, 0 );
+      buoyLabel.position.set( 0, 0, 0 );
       this.mesh.add( buoyLabel );
     },
     generateground()
     {
-      let geometry=new Three.PlaneGeometry(10,10,10,10)
-      let texture=this.loader.load("ground.jpg")
-      let heighttex=this.loader.load("mountain.png")
+      let geometry=new Three.PlaneGeometry(10,10,200,200)
+      let texture=this.loader.load("ground1.jpg")
+      let heighttex=this.loader.load("test5.png")
 
       let material=new Three.ShaderMaterial({
         uniforms:{
@@ -179,7 +181,7 @@ export default {
     {
       let texture=this.loader.load("sea.jpg")
 
-      let material=new Three.ShaderMaterial({
+      this.surfmat=new Three.ShaderMaterial({
             uniforms:{
               tex:{value:texture},
 
@@ -195,7 +197,7 @@ export default {
 
 
 
-      let mesh=new Three.Mesh(geometry,material)
+      let mesh=new Three.Mesh(geometry,this.surfmat)
       mesh.rotation.x=-3.1415/2;
       mesh.position.y=5.1
 
@@ -207,6 +209,7 @@ export default {
   },
   mounted () {
     this.init()
+
     this.animate()
   }
 }

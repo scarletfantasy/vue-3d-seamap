@@ -1,16 +1,23 @@
 <template>
   <div >
-    <Button shape="circle" type="primary" icon="ios-pin" @click="test" ghost></Button>
-    <Card v-show="visi" >
-      <div id="chart" style="width: 600px;height: 400px;"></div>
-    </Card>
+
+      <map-icon  v-bind:iconInfo="info"></map-icon>
+
   </div>
 </template>
 
 <script>
 import echarts from 'echarts'
+
+import MapIcon from "@/components/icon/mapIcon";
 export default {
 name: "buoy",
+  components:
+    {
+      MapIcon,
+
+
+    },
   data(){
   return{
     visi:false,
@@ -22,9 +29,11 @@ name: "buoy",
       {value:234, name:'联盟广告'},
       {value:135, name:'视频广告'},
       {value:1548, name:'搜索引擎'}
-    ]
+    ],
+    info:{type: '气象采集器', modelType: '浮标', id: 'FS-A21005', location: 'N:40.232° E:123.4585°', date: '2020.07.08', company: '上海交通大学'}
   }
   },
+
   methods:{
     test:function (){
       console.log("hello")
@@ -73,9 +82,9 @@ name: "buoy",
     }
   },
   mounted(){
-    this.$nextTick(function() {
+    /*this.$nextTick(function() {
       this.drawPie()
-    })
+    })*/
   }
 }
 </script>
