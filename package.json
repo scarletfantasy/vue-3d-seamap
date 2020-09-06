@@ -11,10 +11,12 @@
     "core-js": "^3.6.5",
     "echarts": "^4.8.0",
     "less-loader": "^6.2.0",
+    "ol": "^6.4.3",
     "three": "^0.119.1",
     "three-css2drender": "^1.0.0",
     "view-design": "^4.3.2",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-source": "^1.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -37,7 +39,9 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "no-unused-vars": "off"
+    }
   },
   "browserslist": [
     "> 1%",

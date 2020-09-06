@@ -4,7 +4,9 @@
     <Buoy v-for="(item) in buoys " :key="item.name" :id="item.name" ></Buoy>
 
     <div id="three"></div>
-
+    <div>
+      <miniseamap :camera="camera" :worldpos="worldpos"></miniseamap>
+    </div>
     <script id="seavertex" type="x-shader/x-vertex">
       void main()
       {
@@ -130,11 +132,12 @@ import * as Three from 'three';
 import {CSS2DRenderer,CSS2DObject} from 'three-css2drender'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Buoy from "@/components/buoy";
-
+import miniseamap from "./miniseamap";
 export default {
   name: 'tdview',
   components: {
-    Buoy
+    Buoy,
+    miniseamap
 
   },
   data () {
@@ -157,6 +160,7 @@ export default {
       let container = document.getElementById('three')
       this.camera = new Three.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.01, 30)
       this.camera.position.z = 20
+
       //this.camera.position.y=10;
       //this.camera.rotation.x=-3.14/12;
       this.scene = new Three.Scene()
@@ -222,7 +226,7 @@ export default {
           fragDepth:true,
         },
         blending:Three.CustomBlending,
-        side:Three.DoubleSide
+
         //depthWrite:false
       })
       this.mesh = new Three.Mesh(geometry, material)
@@ -310,7 +314,7 @@ export default {
   },
   mounted () {
 
-
+    console.log("hello")
     this.init()
 
     this.animate()

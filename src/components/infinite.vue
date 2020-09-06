@@ -2,6 +2,9 @@
   <div id="maindiv">
     <Buoy v-for="(item) in buoys " :key="item.name" :id="item.name" ></Buoy>
     <div id="three"></div>
+    <miniseamap :camera="camera" :worldpos="worldpos">
+
+    </miniseamap>
     <script id="seavertex" type="x-shader/x-vertex">
       void main()
       {
@@ -129,10 +132,12 @@ import * as Three from 'three';
 import {CSS2DRenderer,CSS2DObject} from 'three-css2drender'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Buoy from "@/components/buoy";
+import Miniseamap from "./miniseamap";
 
 export default {
   name: 'infinite',
   components: {
+    Miniseamap,
     Buoy
 
   },
