@@ -6,7 +6,7 @@
     <tdview v-else></tdview>
   </div>
     <button @click="()=>{showcube=!showcube}">change</button>
-    <sea-map></sea-map>
+
   </div>
 </template>
 
@@ -19,7 +19,7 @@ import SeaMap from "./components/SeaMap";
 export default {
   name: 'App',
   components: {
-    SeaMap,
+
     Infinite,
     tdview
 

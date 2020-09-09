@@ -2,9 +2,9 @@
   <div id="maindiv">
     <Buoy v-for="(item) in buoys " :key="item.name" :id="item.name" ></Buoy>
     <div id="three"></div>
-    <miniseamap :camera="camera" :worldpos="worldpos">
 
-    </miniseamap>
+    <sea-map id="seamap" :rotatey="rotatey" :worldpos="worldpos"></sea-map>
+
     <script id="seavertex" type="x-shader/x-vertex">
       void main()
       {
@@ -133,12 +133,14 @@ import {CSS2DRenderer,CSS2DObject} from 'three-css2drender'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Buoy from "@/components/buoy";
 import Miniseamap from "./miniseamap";
+import SeaMap from "@/components/SeaMap";
 
 export default {
   name: 'infinite',
   components: {
-    Miniseamap,
-    Buoy
+
+    Buoy,
+    SeaMap
 
   },
   data () {
@@ -153,13 +155,15 @@ export default {
       groundmat:null,
       count:0.0,
       buoys:[{name:"test",pos:{x:0.0,y:1.0,z:0.0}},{name:"test1",pos:{x:2.0,y:0.0,z:-2.0}},{name:"test2",pos:{x:2.0,y:0.0,z:4.0}}],
-      worldpos:{x:0.0,y:0.0}
+      center:{x:119.22,y:39.222},
+      worldpos:{x:119.22, y:39.222},
+      rotatey:null
     }
   },
   methods: {
     init: function () {
       let container = document.getElementById('three')
-      this.camera = new Three.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.01, 30)
+      this.camera = new Three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 50)
       this.camera.position.z = 20
       //this.camera.position.y=10;
       //this.camera.rotation.x=-3.14/12;
@@ -173,12 +177,12 @@ export default {
       this.renderer = new Three.WebGLRenderer({antialias: true})
       this.renderer.setClearColor(0x98F5FF)
       this.renderer.sortObjects=false
-      this.renderer.setSize(container.clientWidth, container.clientHeight)
+      this.renderer.setSize(window.innerWidth, window.innerHeight)
       //this.renderer.setCullFace()
       container.appendChild(this.renderer.domElement)
 
       this.labelRenderer = new CSS2DRenderer();
-      this.labelRenderer.setSize( container.clientWidth, container.clientHeight);
+      this.labelRenderer.setSize( window.innerWidth, window.innerHeight);
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.top = '0px';
       container.appendChild(this.labelRenderer.domElement)
@@ -201,7 +205,9 @@ export default {
       }
       this.surfmat.uniforms.time.value=this.count;
       this.renderer.render(this.scene, this.camera)
-
+      this.rotatey=this.camera.rotation.y;
+      this.worldpos.x=this.center.x-this.camera.position.x/100;
+      this.worldpos.y=this.center.y-this.camera.position.z/100;
       this.labelRenderer.render(this.scene,this.camera)
     },
 
@@ -275,7 +281,7 @@ export default {
     },
     generatesurface()
     {
-      let texture=this.loader.load("sea.jpg")
+      let texture=this.loader.load("sea1.jpg")
 
       this.surfmat=new Three.ShaderMaterial({
             uniforms:{
@@ -325,8 +331,15 @@ export default {
   margin-top: 60px;
 }
 #three{
-  width: 800px;
-  height: 600px;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+#seamap{
+  position:absolute;
+  right:0px;
+  bottom:0px;
+  z-index: 1;
 }
 #css2d{
   opacity: 1.0;

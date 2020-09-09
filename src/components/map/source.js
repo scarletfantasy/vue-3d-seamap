@@ -1,6 +1,16 @@
 import Tile from 'ol/layer/Tile'
 import XYZ from 'ol/source/XYZ'
 import TileWMS from 'ol/source/TileWMS'
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+
+
+import {Vector} from "ol/layer";
+import * as ol from "ol";
+import VectorSource from "ol/source/Vector";
+import Style from "ol/style/Style";
+import Icon from "ol/style/Icon";
+
 
 const Source = {
   data () {
@@ -8,6 +18,7 @@ const Source = {
       seamap: null,
       mappoint: null,
       seapoint: null,
+      eyeview:null
       
     }
   },
@@ -54,10 +65,30 @@ const Source = {
         zIndex: 1
       })
     },
+    getView()
+    {
+      this.eyeview=new Vector({
+        source: new VectorSource()
+      })
+      let feature = new Feature({
+        geometry: new Point([104, 30])
+      });
+      feature.setStyle(new Style({
+        image: new Icon({
+          src: 'angle.png',
+
+        }),
+
+      }));
+      this.eyeview.getSource().addFeature(feature)
+
+    },
     getSource() {
       this.getSeamap()
       this.getMappoint()
       this.getSeapoint()
+      this.getView()
+
     }
   }
 }
