@@ -2,10 +2,10 @@
   <div>
 
   <div>
-    <infinite v-if="showcube"></infinite>
-    <tdview v-else></tdview>
+    <infinite ></infinite>
+
   </div>
-    <button @click="()=>{showcube=!showcube}">change</button>
+
 
   </div>
 </template>
@@ -21,7 +21,7 @@ export default {
   components: {
 
     Infinite,
-    tdview
+
 
   },
   data(){
