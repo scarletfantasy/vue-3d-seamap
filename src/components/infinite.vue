@@ -134,7 +134,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Buoy from "@/components/buoy";
 import Miniseamap from "./miniseamap";
 import SeaMap from "@/components/SeaMap";
-
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import bouylocation1 from "./data/3dview/bouylocation1";
+import grassposition from "./data/3dview/grassposition";
 export default {
   name: 'infinite',
   components: {
@@ -150,13 +153,19 @@ export default {
       renderer: null,
       mesh: null,
       loader:null,
+      modelloader:null,
+      light:null,
+      ambientlight:null,
+      shark:null,
       labelRenderer:null,
       surfmat:null,
       groundmat:null,
       count:0.0,
-      buoys:[{name:"test",pos:{x:0.0,y:1.0,z:0.0}},{name:"test1",pos:{x:2.0,y:0.0,z:-2.0}},{name:"test2",pos:{x:2.0,y:0.0,z:4.0}}],
+      buoys:bouylocation1,
       center:{x:119.22,y:39.222},
       worldpos:{x:119.22, y:39.222},
+      grasspos:grassposition,
+      grass:[],
       rotatey:null
     }
   },
@@ -169,9 +178,21 @@ export default {
       //this.camera.rotation.x=-3.14/12;
       this.scene = new Three.Scene()
       this.loader=new Three.TextureLoader()
+      this.modelloader=new OBJLoader()
+      this.light=new Three.DirectionalLight(0xffffff,0.5);
+      this.ambientlight=new Three.AmbientLight(0xffffff,0.25)
+      this.scene.add(this.light)
+      this.scene.add(this.ambientlight)
+      //this.generatesubmarines()
       this.generateground()
       this.generateseacube()
       this.generatesurface()
+      this.generateshark()
+      for(let i =0;i<this.grasspos.length;++i)
+      {
+        this.generategrass(this.grasspos[i])
+      }
+
       //this.scene.background = new Three.CubeTextureLoader().setPath("skybox/").load(['px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png', ])
 
       this.renderer = new Three.WebGLRenderer({antialias: true})
@@ -196,12 +217,21 @@ export default {
       requestAnimationFrame(this.animate)
 
       this.count+=0.001;
-      for(var i=0;i<this.buoys.length;i++)
+      for(let i=0;i<this.buoys.length;i++)
       {
         let buoy=document.getElementById(this.buoys[i].name)
+        buoy.style.opacity=1-(this.camera.position.z-this.buoys[i].pos.z)/30
+      }
+      if(this.shark)
+      {
+        this.shark.position.set(10*Math.sin(this.count),2,10*Math.cos(this.count))
+        this.shark.rotation.set(0,this.count+3.14/9*Math.sin(this.count*50)+3.14/2,0)
+      }
+      for(let i=0;i<this.grass.length;i++)
+      {
+        let mygrass=this.grass[i];
 
-        buoy.style.opacity=1-(this.camera.position.z-this.buoys[i].pos.z)/15
-
+        mygrass.opacity=1-(this.camera.position.z-this.grasspos[i].z)/30
       }
       this.surfmat.uniforms.time.value=this.count;
       this.renderer.render(this.scene, this.camera)
@@ -210,7 +240,69 @@ export default {
       this.worldpos.y=this.center.y-this.camera.position.z/100;
       this.labelRenderer.render(this.scene,this.camera)
     },
+    generateshark()
+    {
+      this.modelloader.load('Shark.obj',
+              function (obj) {
+                this.shark=obj;
+                this.shark.position.set(0.0,2.0,0.0);
+                this.shark.scale.set(0.2,0.2,0.2);
+                this.shark.rotation.set(0,3.14/2,0);
+                this.scene.add(this.shark)
 
+              }.bind(this),
+              function ( xhr ) {
+
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+              },
+              function ( error ) {
+
+                console.log( error );
+
+              }
+      )
+    },
+    generatesubmarines(position)
+    {
+      this.modelloader.load('submarine1.obj',
+              function (obj) {
+                obj.position.set(position.x,position.y,position.z)
+                obj.scale.set(0.0003,0.0003,0.0003)
+                obj.rotation.set(-3.14/2,0,3.14/2)
+                this.scene.add(obj)
+
+              }.bind(this)
+      )
+    },
+    generategrass(position)
+    {
+      this.modelloader.load('Trava Kolosok.obj',
+              function (obj) {
+                obj.position.set(position.x,position.y,position.z)
+                obj.scale.set(0.0015,0.0015,0.0015)
+                obj.rotation.set(0,0,0)
+                console.log(obj)
+                let texture=this.loader.load("Trava Kolosok.jpg")
+                //obj.color='0x00ff00'
+                obj.traverse( function ( child ) {
+
+                  if ( child instanceof Three.Mesh ) {
+
+                    child.material.map = texture;
+                    child.material.transparent=true;
+                    this.grass.push(child.material)
+                    console.log(child.material)
+
+                  }
+
+                }.bind(this))
+
+
+                this.scene.add(obj)
+              }.bind(this)
+      )
+    },
     generateseacube()
     {
 
@@ -237,7 +329,11 @@ export default {
       this.mesh.add( buoyLabel );*/
       for(var i=0;i<this.buoys.length;i++)
       {
-        this.generatebouy(this.buoys[i].pos,this.buoys[i].name)
+        this.generatebouy(this.buoys[i].pos,this.buoys[i].name);
+        if(this.buoys[i].type==1)
+        {
+          this.generatesubmarines(this.buoys[i].pos)
+        }
       }
     },
     generatebouy(pos,name)
@@ -254,10 +350,11 @@ export default {
     generateground()
 
     {
-      let geometry=new Three.PlaneGeometry(50,50,100,100)
+      let geometry=new Three.PlaneGeometry(50,50,50,50)
       let texture=this.loader.load("ground1.jpg")
+      this.loader.crossOrigin = "Anonymous"
       let heighttex=this.loader.load("im1.png")
-
+      console.log(heighttex)
       this.groundmat=new Three.ShaderMaterial({
             uniforms:{
               tex:{value:texture},

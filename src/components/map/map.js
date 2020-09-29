@@ -14,7 +14,7 @@ const SeaMapInstance= {
       trailbegin: false,
       vectorshow: false,
       showtimer: null,
-      anchor:null
+
     }
   },
   mounted() {
@@ -31,21 +31,16 @@ const SeaMapInstance= {
             center: olProj.transform([ 119.22, 39.222 ], 'EPSG:4326',
               'EPSG:3857'),
             projection: 'EPSG:3857',
-            zoom: 2,
+            zoom: 10,
             minZoom: 2,
             maxZoom: 18,
           }),
         target: 'map',
         controls: [ zoomslider, zoomcontrol ]
       })
-      this.anchor = new Overlay({
-        element: document.getElementById('anchor')
-      });
+
       // 关键的一点，需要设置附加到地图上的位置
-      this.anchor.setPosition(olProj.transform([ 119.22, 39.222 ], 'EPSG:4326',
-          'EPSG:3857'));
-      // 然后添加到map上
-      this.map.addOverlay(this.anchor);
+
 
       this.view = this.map.getView()
 
